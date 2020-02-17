@@ -1,0 +1,23 @@
+private struct PaddleJob : IJobForEach<Translation, PaddleComponent, PaddleInputComponent>
+    {
+        public float deltaTime;
+        public int direction;
+
+        public void Execute(ref Translation trans, ref PaddleComponent paddle, ref PaddleInputComponent paddleInput)
+        {
+            trans.Value.x += paddle.unitsPerSecond * direction * deltaTime;
+        }
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        int directionInput = 0;
+
+        if (Input.GetKey(KeyCode.A))
+            directionInput = -1;
+        else if (Input.GetKey(KeyCode.LeftArrow))
+            directionInput = 1;
+
+        var job = new PaddleJob { deltaTime = Time.DeltaTime, direction = directionInput };
+
+        return job.Schedule(this, inputDeps);
